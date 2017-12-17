@@ -3,3 +3,6 @@ listings.csv
 *.npy
 build/*.*
 dist/*.*
+*.pyc
+.DS_Store
+interface/calendar.pyc
