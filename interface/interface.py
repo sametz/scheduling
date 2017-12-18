@@ -59,6 +59,7 @@ def doDownloadClasses():
     import os
     docu_path = os.path.join(os.path.expanduser("~"), "Documents")
     docu_path = docu_path + "/" + a[1]
+    # GMS: d is a global of class StatusBar
     update_classes.update_classes(a[0], docu_path, d)
     update_classes.deleteExtraRecords(docu_path, d)
 
