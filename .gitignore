@@ -7,3 +7,4 @@ dist/*.*
 .DS_Store
 interface/calendar.pyc
 .idea/
+interface/*.pyc

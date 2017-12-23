@@ -15,8 +15,8 @@ class update_classes:
     def __init__(self, term, outputname, d):
         """
 
-        :param term:
-        :param outputname:
+        :param term: 4-digit UD semester code
+        :param outputname: path to save file to
         :param d: (interface.StatusBar)
         """
         import csv

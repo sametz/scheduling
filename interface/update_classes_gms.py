@@ -40,11 +40,20 @@ def find_table_headers(table):
 def get_table_data(table):
     """Parse a bs4 table selection row by row to return a list of lists.
         :param: table: bs4 table element
-        :returns: a list of lists of td elements, analogous to a list of spreadsheet rows"""
+        :returns: a list of lists of td elements, analogous to a list of
+        spreadsheet rows"""
     table_rows = table.select('tr')
     table_data = [[td.text.strip().encode('ascii') for td in row.select('td')]
                   for row in table_rows[1:]]
-    return table_data
+    lab_dis_data = [[td.text.strip().encode('ascii')
+                     for td in row.select('td')]
+                    for row in table_rows[1:] if is_lab_or_dis(row)]
+    return table_data, lab_dis_data
+
+
+def is_lab_or_dis(tr):
+    coursetype = tr.find_all('span')
+    return coursetype[0].string == 'LAB' or coursetype[0].string == 'DIS'
 
 
 def get_next_url(page, current_url):
@@ -65,7 +74,9 @@ def get_next_url(page, current_url):
 
 
 def process_pages(current_page, current_table, current_url, data):
-    data.append(get_table_data(current_table))
+    full_data, lab_dis_data = get_table_data(current_table)
+    data[0].append(full_data)
+    data[1].append(lab_dis_data)
     new_url = get_next_url(current_page, current_url)
     if new_url == None:
         return
@@ -79,7 +90,7 @@ def process_pages(current_page, current_table, current_url, data):
 
 def scrape_pages(current_url):
     current_page, status = get_class_page(current_url)
-    all_data = []
+    all_data = [[], []]
     #     at_end = False
     current_table = find_table(current_page)
     headers = find_table_headers(current_table)
@@ -105,5 +116,7 @@ def save_csv(headers, data, filename):
 if __name__ == '__main__':
     current_url = CLASS_URL
     headers, data = scrape_pages(current_url)
-    good_data = convert_page_data(data)
-    save_csv(headers, good_data, 'test_spring18.csv')
+    full_data = convert_page_data(data[0])
+    lab_dis_data = convert_page_data(data[1])
+    save_csv(headers, full_data, 'test_spring18.csv')
+    save_csv(headers, lab_dis_data, 'test_lab_dis_spring18.csv')
