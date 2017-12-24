@@ -42,7 +42,7 @@ class UpdateClasses(unittest.TestCase):
     def test_get_table_data(self):
         table = ucg.find_table(self.first_page)
         table_data = ucg.get_table_data(table)
-        first_cell = table_data[0][0]
+        first_cell = table_data[0][0][0]
         self.assertTrue(first_cell.startswith('CHEM'))
 
     def test_get_next_url(self):
@@ -55,9 +55,9 @@ class UpdateClasses(unittest.TestCase):
         current_url = ucg.CLASS_URL
         current_page, status = ucg.get_class_page(current_url)
         current_table = ucg.find_table(current_page)
-        data = []
+        data = [[], []]
         ucg.process_pages(current_page, current_table, current_url, data)
-        first_enrollment = data[0][0][2]
+        first_enrollment = data[0][0][0][2]
         enrollment = re.compile('\d+ OF \d+')
         result = enrollment.search(first_enrollment)
         print result.group()
@@ -75,7 +75,7 @@ class UpdateClasses(unittest.TestCase):
                           'Time',
                           'Location',
                           'Instructor'])
-        first_enrollment = data[0][0][2]
+        first_enrollment = data[0][0][0][2]
         enrollment = re.compile('\d+ OF \d+')
         result = enrollment.search(first_enrollment)
         print result.group()
@@ -84,7 +84,7 @@ class UpdateClasses(unittest.TestCase):
     def test_convert_page_data(self):
         current_url = ucg.CLASS_URL
         headers, data = ucg.scrape_pages(current_url)
-        converted_data = ucg.convert_page_data(data)
+        converted_data = ucg.convert_page_data(data[0])
         first_enrollment = converted_data[0][2]
         enrollment = re.compile('\d+ OF \d+')
         result = enrollment.search(first_enrollment)
