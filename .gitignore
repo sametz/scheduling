@@ -1,10 +1,12 @@
+__pycache__/
+*.py[cod]
+*$py.class
 *.tsv
 listings.csv
 *.npy
 build/*.*
 dist/*.*
-*.pyc
 .DS_Store
 interface/calendar.pyc
 .idea/
-interface/*.pyc
+
