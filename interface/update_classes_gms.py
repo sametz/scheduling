@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 
 CLASS_URL = ("https://udapps.nss.udel.edu/CoursesSearch/search-results"
-             "?term=2183"
+             "?term=2198"  # enter current term here
              "&search_type=A"
              "&course_sec=CHEM"
              "&session=All"
@@ -22,6 +22,36 @@ CLASS_URL = ("https://udapps.nss.udel.edu/CoursesSearch/search-results"
              "&startat="
              )
 HEADERS = {'User-Agent': 'Mozilla/5.0'}
+
+SEMESTER = "S2020"
+
+
+# for future refactor: automatically compute semester code
+def semester_code(semester):
+    """Given a year, return the corresponding semester code.
+
+    Args:
+        semester (str): the semester in format "X2nnn". X = W/S/J/F; 2nnn is
+        the year.
+
+    Returns:
+        (int): the code.
+    """
+    year = int(semester[1:])
+    if not 2000 <= year < 2100:
+        print('ERROR year must be from 2000 to 2099')
+        return None
+    season = semester[0]
+    if season not in ['W', 'S', 'J', 'F']:
+        print(
+            'ERROR first letter for session is invalid (must be W, S, J, or F)')
+        return None
+    season_code = {'W': '1',
+                   'S': '3',
+                   'J': '5',
+                   'F': '8'}
+    code = '2' + semester[-2:] + season_code[season]
+    return code
 
 
 def get_class_page(url):
@@ -59,17 +89,17 @@ def is_lab_or_dis(tr):
 def get_next_url(page, current_url):
     next_button = page.find(id='searchNxtBtn')
     if next_button is None:
-        print 'end reached'
+        print('end reached')
         return None
-    print 'current url: ', current_url
+    print('current url: ', current_url)
     next_url_hint = next_button['onclick']
     startat = re.compile('&startat=[^&\']*')
-    print 'searching: ', next_url_hint
+    print('searching: ', next_url_hint)
     new_startat = startat.search(next_url_hint).group()
-    print 'new startat: ', new_startat
+    print('new startat: ', new_startat)
 
     new_url = startat.sub(new_startat, current_url)
-    print 'new url: ', new_url
+    print('new url: ', new_url)
     return new_url
 
 
@@ -78,11 +108,11 @@ def process_pages(current_page, current_table, current_url, data):
     data[0].append(full_data)
     data[1].append(lab_dis_data)
     new_url = get_next_url(current_page, current_url)
-    if new_url == None:
+    if new_url is None:
         return
     else:
-        print 'old url: ', current_url[-25:]
-        print 'new_url: ', new_url[-25:]
+        print('old url: ', current_url[-25:])
+        print('new_url: ', new_url[-25:])
         new_page, status = get_class_page(new_url)
         new_table = find_table(new_page)
         process_pages(new_page, new_table, new_url, data)
@@ -94,7 +124,7 @@ def scrape_pages(current_url):
     #     at_end = False
     current_table = find_table(current_page)
     headers = find_table_headers(current_table)
-    print 'headers: ', headers
+    print('headers: ', headers)
     process_pages(current_page, current_table, current_url, all_data)
 
     return headers, all_data
@@ -118,5 +148,5 @@ if __name__ == '__main__':
     headers, data = scrape_pages(current_url)
     full_data = convert_page_data(data[0])
     lab_dis_data = convert_page_data(data[1])
-    save_csv(headers, full_data, 'test_spring18.csv')
-    save_csv(headers, lab_dis_data, 'test_lab_dis_spring18.csv')
+    save_csv(headers, full_data, 'test_fall19.csv')
+    save_csv(headers, lab_dis_data, 'test_lab_dis_fall19.csv')
